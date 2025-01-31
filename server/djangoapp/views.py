@@ -1,19 +1,20 @@
 # Uncomment the required imports before adding the code
 
-# from django.shortcuts import render
-# from django.http import HttpResponseRedirect, HttpResponse
-# from django.contrib.auth.models import User
-# from django.shortcuts import get_object_or_404, render, redirect
-# from django.contrib.auth import logout
-# from django.contrib import messages
-# from datetime import datetime
+from django.shortcuts import render
+from django.http import HttpResponseRedirect, HttpResponse
+from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404, render, redirect
+from django.contrib.auth import logout
+from django.contrib import messages
+from datetime import datetime
+from .models import CarMake, CarModel
 
 from django.http import JsonResponse
 from django.contrib.auth import login, authenticate
 import logging
 import json
 from django.views.decorators.csrf import csrf_exempt
-# from .populate import initiate
+from .populate import initiate
 
 
 # Get an instance of a logger
@@ -21,7 +22,20 @@ logger = logging.getLogger(__name__)
 
 
 # Create your views here.
+def get_cars(request):
+    # Check if there are any CarModel records in the database
+    if CarModel.objects.count() == 0:
+        print("No CarModel data found. Populating the database...")
+        initiate()  # Populate the database with data if empty
 
+    # Query all CarModel objects with related CarMake data
+    car_models = CarModel.objects.select_related('car_make')
+    
+    # Create a list of cars with their model and make information
+    cars = [{"CarModel": car_model.name, "CarMake": car_model.car_make.name} for car_model in car_models]
+
+    # Return the data as a JSON response
+    return JsonResponse({"CarModels": cars})
 # Create a `login_request` view to handle sign in request
 @csrf_exempt
 def login_user(request):
