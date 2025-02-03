@@ -8,6 +8,8 @@ from django.contrib.auth import logout
 from django.contrib import messages
 from datetime import datetime
 from .models import CarMake, CarModel
+from .restapis import get_request
+
 
 
 from django.http import JsonResponse
@@ -66,13 +68,22 @@ def login_user(request):
 # a list of dealerships
 # def get_dealerships(request):
 #Update the `get_dealerships` render list of dealerships all by default, particular state if state is passed
-def get_dealerships(request, state="All"):
-    if(state == "All"):
+def get_dealers(request, state="All"):
+    if state == "All":
         endpoint = "/fetchDealers"
     else:
-        endpoint = "/fetchDealers/"+state
+        endpoint = f"/fetchDealers/{state}"
+
+    print(f"Fetching data from: {endpoint}")  # Debugging
+
     dealerships = get_request(endpoint)
-    return JsonResponse({"status":200,"dealers":dealerships})
+
+    if dealerships is None:
+        print("Error: get_request returned None")  # Debugging
+        return JsonResponse({"status": 500, "error": "Failed to fetch dealerships"}, status=500)
+
+    print(f"Dealerships received: {dealerships}")  # Debugging
+    return JsonResponse({"status": 200, "dealers": dealerships})
 
 # Create a `get_dealer_reviews` view to render the reviews of a dealer
 # def get_dealer_reviews(request,dealer_id):

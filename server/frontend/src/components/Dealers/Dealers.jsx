@@ -26,22 +26,27 @@ const Dealers = () => {
     }
   }
 
-  const get_dealers = async ()=>{
-    const res = await fetch(dealer_url, {
-      method: "GET"
-    });
+const get_dealers = async () => {
+  try {
+    const res = await fetch(dealer_url, { method: "GET" });
     const retobj = await res.json();
-    if(retobj.status === 200) {
-      let all_dealers = Array.from(retobj.dealers)
-      let states = [];
-      all_dealers.forEach((dealer)=>{
-        states.push(dealer.state)
-      });
+    
+    console.log("API Response:", retobj);  // 🔍 Check if the response contains data
 
-      setStates(Array.from(new Set(states)))
-      setDealersList(all_dealers)
+    if (retobj.status === 200 && retobj.dealers.length > 0) {
+      let all_dealers = Array.from(retobj.dealers);
+      let states = all_dealers.map(dealer => dealer.state);
+
+      setStates(Array.from(new Set(states)));
+      setDealersList(all_dealers);
+    } else {
+      console.error("No dealers found or API error:", retobj);
     }
+  } catch (error) {
+    console.error("Fetch error:", error);
   }
+};
+
   useEffect(() => {
     get_dealers();
   },[]);  
