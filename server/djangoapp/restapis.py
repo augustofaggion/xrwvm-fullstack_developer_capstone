@@ -37,7 +37,7 @@ def analyze_review_sentiments(text):
     request_url = sentiment_analyzer_url+"analyze/"+text
     try:
         # Call get method of requests library with URL and parameters
-        response = requests.get(request_url)
+        response = requests.get(request_url, verify=False)
         return response.json()
     except Exception as err:
         print(f"Unexpected {err=}, {type(err)=}")
